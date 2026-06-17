@@ -49,17 +49,10 @@ jobs:
     uses: ./.github/workflows/infrastructure.yml
     secrets: inherit
 
-  frontend:
-    name: Frontend
-    needs: [detect-changes, infrastructure]
-    if: always() && (needs.detect-changes.outputs.frontend == 'true' || needs.detect-changes.outputs.terraform == 'true' || needs.detect-changes.outputs.backend == 'true')
-    uses: ./.github/workflows/frontend.yml
-    secrets: inherit
-
   smoke-tests:
     name: Smoke Tests
-    needs: [infrastructure, frontend]
-    if: always() && needs.infrastructure.result != 'failure' && needs.frontend.result != 'failure'
+    needs: [infrastructure]
+    if: always() && needs.infrastructure.result != 'failure'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
