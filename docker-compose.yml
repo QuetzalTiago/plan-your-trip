@@ -1,0 +1,70 @@
+services:
+  # ─── PostgreSQL Database ─────────────────────────────────────────────────────
+  postgres:
+    image: postgres:17-alpine
+    container_name: voyager-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: voyager_local
+      POSTGRES_USER: voyager_dev
+      POSTGRES_PASSWORD: local_dev_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U voyager_dev -d voyager_local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ─── Backend API (Python FastAPI + uvicorn) ───────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      target: dev
+    container_name: voyager-api
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend/src:/app/src:ro
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: voyager_local
+      POSTGRES_USER: voyager_dev
+      POSTGRES_PASSWORD: local_dev_password
+      AWS_REGION: us-east-1
+      LOCAL_DEV: "true"
+      MOCK_AI: "${MOCK_AI:-0}"
+    env_file:
+      - .env.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ─── Frontend (Vite dev server) ───────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    container_name: voyager-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src:ro
+      - ./frontend/public:/app/public:ro
+      - ./frontend/index.html:/app/index.html:ro
+    environment:
+      VITE_API_URL: http://localhost:4000
+      VITE_STREAM_URL: http://localhost:4000
+      DOCKER: "true"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local

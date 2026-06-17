@@ -1,0 +1,34 @@
+[project]
+name = "voyager-backend"
+version = "0.1.0"
+description = "Voyager — Agentic Travel Planner API"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "boto3>=1.38.0",
+    "psycopg2-binary>=2.9.9",
+    "google-genai>=1.14.0",
+    "google-search-results>=2.4.2",
+    "python-jose[cryptography]>=3.4.0",
+    "httpx>=0.28.0",
+    "sse-starlette>=2.3.0",
+    "slowapi>=0.1.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.11.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100

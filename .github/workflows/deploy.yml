@@ -1,0 +1,117 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+# Required GitHub Secrets:
+# - AWS_ROLE_ARN: IAM role ARN for OIDC authentication
+#
+# Required AWS Secrets Manager secrets (must be created before first deploy):
+# - voyager-prod/gemini-api-key: Gemini AI API key
+# - voyager-prod/serpapi-api-key: SerpAPI key for flight/hotel searches
+# - voyager-prod-db-master-password: Auto-created by Terraform (JSON format with password field)
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      terraform: ${{ steps.filter.outputs.terraform }}
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check changed paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            terraform:
+              - 'terraform/**'
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  infrastructure:
+    name: Infrastructure & Backend
+    needs: detect-changes
+    if: needs.detect-changes.outputs.terraform == 'true' || needs.detect-changes.outputs.backend == 'true'
+    uses: ./.github/workflows/infrastructure.yml
+    secrets: inherit
+
+  frontend:
+    name: Frontend
+    needs: [detect-changes, infrastructure]
+    if: always() && (needs.detect-changes.outputs.frontend == 'true' || needs.detect-changes.outputs.terraform == 'true' || needs.detect-changes.outputs.backend == 'true')
+    uses: ./.github/workflows/frontend.yml
+    secrets: inherit
+
+  smoke-tests:
+    name: Smoke Tests
+    needs: [infrastructure, frontend]
+    if: always() && needs.infrastructure.result != 'failure' && needs.frontend.result != 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Get URLs from Terraform
+        id: urls
+        run: |
+          cd terraform
+          terraform init -backend-config=backend.hcl
+          echo "api_url=$(terraform output -raw api_url)" >> $GITHUB_OUTPUT
+          echo "cloudfront_url=$(terraform output -raw cloudfront_url)" >> $GITHUB_OUTPUT
+
+      - name: Test API health
+        run: |
+          API_URL="${{ steps.urls.outputs.api_url }}"
+          echo "Testing API at $API_URL"
+
+          # Test API is accessible (401 expected without auth)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" $API_URL/trips || true)
+          if [ "$STATUS" == "401" ] || [ "$STATUS" == "403" ]; then
+            echo "✅ API is responding (auth required)"
+          else
+            echo "⚠️  API returned unexpected status: $STATUS"
+          fi
+
+      - name: Test Frontend
+        run: |
+          CLOUDFRONT_URL="${{ steps.urls.outputs.cloudfront_url }}"
+          echo "Testing frontend at $CLOUDFRONT_URL"
+
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" $CLOUDFRONT_URL)
+          if [ "$STATUS" == "200" ]; then
+            echo "✅ Frontend is accessible"
+          else
+            echo "❌ Frontend returned status: $STATUS"
+            exit 1
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Deployment Summary 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### URLs" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend**: ${{ steps.urls.outputs.cloudfront_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **API**: ${{ steps.urls.outputs.api_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Components" >> $GITHUB_STEP_SUMMARY
+          echo "- Infrastructure: ${{ needs.infrastructure.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend: ${{ needs.frontend.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Smoke Tests: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY

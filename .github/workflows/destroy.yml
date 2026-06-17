@@ -1,0 +1,65 @@
+name: Destroy Voyager Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "destroy" to confirm'
+        required: true
+        type: string
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: 1.5.0
+
+jobs:
+  destroy:
+    name: Destroy Infrastructure
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'destroy'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Empty S3 buckets
+        run: |
+          FRONTEND_BUCKET=$(cd terraform && terraform output -raw frontend_bucket_name)
+          EXPORTS_BUCKET=$(cd terraform && terraform output -raw export_bucket_name)
+
+          echo "Emptying frontend bucket..."
+          aws s3 rm s3://$FRONTEND_BUCKET --recursive || true
+
+          echo "Emptying exports bucket..."
+          aws s3 rm s3://$EXPORTS_BUCKET --recursive || true
+
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init -backend-config=backend.hcl
+
+      - name: Terraform Destroy
+        working-directory: ./terraform
+        run: terraform destroy -auto-approve
+
+      - name: Note about state bucket
+        run: |
+          echo "⚠️  Note: The Terraform state S3 bucket and DynamoDB table are NOT automatically deleted." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "To completely clean up, manually delete:" >> $GITHUB_STEP_SUMMARY
+          echo "- S3 bucket: voyager-terraform-state-\${ACCOUNT_ID}" >> $GITHUB_STEP_SUMMARY
+          echo "- DynamoDB table: voyager-terraform-locks" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Infrastructure destroyed successfully" >> $GITHUB_STEP_SUMMARY
