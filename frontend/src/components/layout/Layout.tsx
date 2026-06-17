@@ -6,7 +6,7 @@ import { Menu } from "lucide-react";
 export default function Layout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(
-    () => typeof window !== "undefined" && window.innerWidth >= 768,
+    () => typeof window !== "undefined" && window.innerWidth >= 768
   );
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 

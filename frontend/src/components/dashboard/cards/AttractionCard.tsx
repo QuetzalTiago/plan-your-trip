@@ -24,10 +24,7 @@ export default function AttractionCard({ attraction }: Props) {
     >
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
-          <h4
-            className="font-semibold text-sm"
-            style={{ color: "var(--text-primary)" }}
-          >
+          <h4 className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
             🎯 {attraction.name}
           </h4>
           {attraction.category && (

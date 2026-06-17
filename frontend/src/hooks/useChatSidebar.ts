@@ -20,7 +20,7 @@ export function useChatSidebar({ tripId, onNewMessage }: UseChatSidebarProps) {
     setActiveTool,
     setMessages,
   } = useStore();
-  
+
   const [input, setInput] = useState("");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<(() => void) | null>(null);
@@ -29,8 +29,7 @@ export function useChatSidebar({ tripId, onNewMessage }: UseChatSidebarProps) {
   // Scroll to bottom on load and during active conversation
   useEffect(() => {
     if (shouldScrollToBottom.current && messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop =
-        messagesContainerRef.current.scrollHeight;
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
   }, [streaming, streamContent]);
 
@@ -76,7 +75,7 @@ export function useChatSidebar({ tripId, onNewMessage }: UseChatSidebarProps) {
                 content: m.content,
                 toolName: m.tool_name ?? undefined,
                 createdAt: m.created_at,
-              })),
+              }))
             );
           } catch (err) {
             console.error("Failed to fetch messages:", err);
@@ -95,16 +94,30 @@ export function useChatSidebar({ tripId, onNewMessage }: UseChatSidebarProps) {
         setStreaming(false);
         clearStream();
         shouldScrollToBottom.current = false;
-      },
+      }
     );
-  }, [input, streaming, tripId, token, onNewMessage, appendStream, clearStream, setActiveTool, setStreaming, setMessages]);
+  }, [
+    input,
+    streaming,
+    tripId,
+    token,
+    onNewMessage,
+    appendStream,
+    clearStream,
+    setActiveTool,
+    setStreaming,
+    setMessages,
+  ]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  }, [handleSend]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    },
+    [handleSend]
+  );
 
   return {
     // State
@@ -113,7 +126,7 @@ export function useChatSidebar({ tripId, onNewMessage }: UseChatSidebarProps) {
     streamContent,
     activeTool,
     messagesContainerRef,
-    
+
     // Actions
     setInput,
     handleSend,

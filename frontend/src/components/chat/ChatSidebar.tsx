@@ -9,11 +9,7 @@ interface ChatSidebarProps {
   onNewMessage: (msg: Message) => void;
 }
 
-export default function ChatSidebar({
-  tripId,
-  messages,
-  onNewMessage,
-}: ChatSidebarProps) {
+export default function ChatSidebar({ tripId, messages, onNewMessage }: ChatSidebarProps) {
   const {
     input,
     streaming,
@@ -26,10 +22,7 @@ export default function ChatSidebar({
   } = useChatSidebar({ tripId, onNewMessage });
 
   return (
-    <div
-      className="flex flex-col h-full border-l"
-      style={{ borderColor: "var(--border)" }}
-    >
+    <div className="flex flex-col h-full border-l" style={{ borderColor: "var(--border)" }}>
       {/* Header */}
       <div
         className="px-4 py-3 border-b font-semibold text-sm"
@@ -39,10 +32,7 @@ export default function ChatSidebar({
       </div>
 
       {/* Messages */}
-      <div
-        ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto px-4 py-3 space-y-3"
-      >
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -51,8 +41,7 @@ export default function ChatSidebar({
             <div
               className="max-w-[85%] px-3 py-2 rounded-lg text-sm"
               style={{
-                background:
-                  msg.role === "user" ? "var(--accent)" : "var(--surface)",
+                background: msg.role === "user" ? "var(--accent)" : "var(--surface)",
                 color: msg.role === "user" ? "#fff" : "var(--text-primary)",
               }}
             >
@@ -60,9 +49,7 @@ export default function ChatSidebar({
                 msg.content
               ) : (
                 <div className="prose prose-sm max-w-none dark:prose-invert">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {msg.content}
-                  </ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                 </div>
               )}
             </div>
@@ -90,9 +77,7 @@ export default function ChatSidebar({
               )}
               {streamContent ? (
                 <div className="prose prose-sm max-w-none dark:prose-invert">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {streamContent}
-                  </ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{streamContent}</ReactMarkdown>
                 </div>
               ) : (
                 <div className="flex items-center gap-1">
@@ -107,10 +92,7 @@ export default function ChatSidebar({
       </div>
 
       {/* Input */}
-      <div
-        className="px-4 py-3 border-t"
-        style={{ borderColor: "var(--border)" }}
-      >
+      <div className="px-4 py-3 border-t" style={{ borderColor: "var(--border)" }}>
         <div className="flex gap-2">
           <textarea
             value={input}
@@ -131,10 +113,7 @@ export default function ChatSidebar({
             disabled={streaming || !input.trim()}
             className="px-4 py-2 rounded text-sm font-semibold text-white"
             style={{
-              background:
-                streaming || !input.trim()
-                  ? "var(--text-tertiary)"
-                  : "var(--accent)",
+              background: streaming || !input.trim() ? "var(--text-tertiary)" : "var(--accent)",
             }}
           >
             Send

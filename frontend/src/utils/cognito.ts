@@ -232,11 +232,7 @@ export function forgotPassword(email: string): Promise<void> {
 /**
  * Confirm new password with verification code
  */
-export function confirmPassword(
-  email: string,
-  code: string,
-  newPassword: string,
-): Promise<void> {
+export function confirmPassword(email: string, code: string, newPassword: string): Promise<void> {
   const userData = {
     Username: email,
     Pool: userPool,

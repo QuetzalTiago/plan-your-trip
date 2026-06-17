@@ -23,10 +23,7 @@ export default function ActivityCard({ activity }: Props) {
       style={{ background: "var(--surface)", borderColor: "var(--border)" }}
     >
       <div className="mb-2">
-        <h4
-          className="font-semibold text-sm"
-          style={{ color: "var(--text-primary)" }}
-        >
+        <h4 className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
           🎭 {activity.name}
         </h4>
       </div>
@@ -43,10 +40,7 @@ export default function ActivityCard({ activity }: Props) {
       )}
 
       {activity.description && (
-        <p
-          className="text-xs mb-2 line-clamp-2"
-          style={{ color: "var(--text-secondary)" }}
-        >
+        <p className="text-xs mb-2 line-clamp-2" style={{ color: "var(--text-secondary)" }}>
           {activity.description}
         </p>
       )}

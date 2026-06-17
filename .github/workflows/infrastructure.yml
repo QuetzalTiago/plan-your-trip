@@ -8,6 +8,12 @@ on:
       - "backend/**"
       - ".github/workflows/infrastructure.yml"
   workflow_dispatch:
+    inputs:
+      apply:
+        description: "Apply Terraform changes"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   id-token: write
@@ -76,17 +82,12 @@ jobs:
       - name: Image digest
         run: echo "Pushed image ${{ steps.build.outputs.image_uri }}"
 
-  terraform:
+  terraform-plan:
     needs: [changes, build-backend]
     if: always() && (needs.changes.outputs.terraform == 'true' || needs.changes.outputs.backend == 'true')
     runs-on: ubuntu-latest
-    environment: production
     outputs:
-      api_url: ${{ steps.output.outputs.api_url }}
-      cloudfront_url: ${{ steps.output.outputs.cloudfront_url }}
-      user_pool_id: ${{ steps.output.outputs.user_pool_id }}
-      user_pool_client_id: ${{ steps.output.outputs.user_pool_client_id }}
-      migrate_function: ${{ steps.output.outputs.migrate_function }}
+      plan_exitcode: ${{ steps.plan.outputs.exitcode }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -180,11 +181,118 @@ jobs:
         run: |
           cd terraform
           if [ -n "${{ needs.build-backend.outputs.image_uri }}" ]; then
-            terraform plan -no-color -var="ecs_image_uri=${{ needs.build-backend.outputs.image_uri }}" -out=tfplan
+            terraform plan -no-color -var="ecs_image_uri=${{ needs.build-backend.outputs.image_uri }}" -out=tfplan -detailed-exitcode
           else
-            terraform plan -no-color -out=tfplan
+            terraform plan -no-color -out=tfplan -detailed-exitcode
           fi
-        continue-on-error: false
+          echo "exitcode=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Save Terraform Plan
+        run: |
+          cd terraform
+          terraform show -no-color tfplan > plan.txt
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: |
+            terraform/tfplan
+            terraform/plan.txt
+          retention-days: 5
+
+      - name: Comment PR with Plan
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('terraform/plan.txt', 'utf8');
+            const output = `#### Terraform Plan 📖
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`terraform
+            ${plan}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+      - name: Plan Summary
+        run: |
+          cd terraform
+          echo "## Terraform Plan 📖" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **To apply changes**: Re-run this workflow and check the 'Apply Terraform changes' box" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>Show Plan</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```terraform' >> $GITHUB_STEP_SUMMARY
+          cat plan.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ needs.build-backend.outputs.image_uri }}" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Backend Image**: ${{ needs.build-backend.outputs.image_uri }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  terraform-apply:
+    needs: [terraform-plan, build-backend]
+    if: needs.terraform-plan.outputs.plan_exitcode == '2' && github.event.inputs.apply == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    outputs:
+      api_url: ${{ steps.output.outputs.api_url }}
+      cloudfront_url: ${{ steps.output.outputs.cloudfront_url }}
+      user_pool_id: ${{ steps.output.outputs.user_pool_id }}
+      user_pool_client_id: ${{ steps.output.outputs.user_pool_client_id }}
+      migrate_function: ${{ steps.output.outputs.migrate_function }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Bootstrap Terraform Backend
+        run: |
+          # Get AWS Account ID
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+          # Update backend.hcl with account ID
+          sed -i "s/voyager-terraform-state/voyager-terraform-state-${ACCOUNT_ID}/" terraform/backend.hcl
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init -backend-config=backend.hcl
+
+      - name: Download Terraform Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan
+          path: terraform/
 
       - name: Terraform Apply
         id: apply
@@ -243,10 +351,105 @@ jobs:
 
       - name: Summary
         run: |
-          echo "## Deployment Complete 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "## Infrastructure Applied 🚀" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **ALB URL**: ${{ steps.output.outputs.alb_url }}" >> $GITHUB_STEP_SUMMARY
           echo "- **CloudFront URL**: ${{ steps.output.outputs.cloudfront_url }}" >> $GITHUB_STEP_SUMMARY
           if [ -n "${{ needs.build-backend.outputs.image_uri }}" ]; then
             echo "- **Backend Image**: ${{ needs.build-backend.outputs.image_uri }}" >> $GITHUB_STEP_SUMMARY
           fi
+
+  deploy-frontend:
+    needs: [terraform-apply, changes]
+    if: always() && needs.terraform-apply.result == 'success' && (needs.changes.outputs.terraform == 'true' || needs.changes.outputs.backend == 'true' || github.event.inputs.apply == 'true')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Get Terraform outputs
+        id: terraform
+        run: |
+          # Get AWS Account ID and update backend config
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          sed -i "s/voyager-terraform-state/voyager-terraform-state-${ACCOUNT_ID}/" terraform/backend.hcl
+
+          cd terraform
+          terraform init -backend-config=backend.hcl
+          echo "api_url=$(terraform output -raw alb_url)" >> $GITHUB_OUTPUT
+          echo "bucket=$(terraform output -raw frontend_bucket_name)" >> $GITHUB_OUTPUT
+          echo "distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
+          echo "cloudfront_url=$(terraform output -raw cloudfront_url)" >> $GITHUB_OUTPUT
+          echo "user_pool_id=$(terraform output -raw user_pool_id)" >> $GITHUB_OUTPUT
+          echo "user_pool_client_id=$(terraform output -raw user_pool_client_id)" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Create production environment file
+        run: |
+          cd frontend
+          echo "VITE_API_URL=${{ steps.terraform.outputs.api_url }}" > .env.production
+          echo "✓ Created .env.production with API URL"
+
+      - name: Build frontend
+        env:
+          VITE_USER_POOL_ID: ${{ steps.terraform.outputs.user_pool_id }}
+          VITE_USER_POOL_CLIENT_ID: ${{ steps.terraform.outputs.user_pool_client_id }}
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Sync to S3
+        run: |
+          cd frontend
+          aws s3 sync dist/ s3://${{ steps.terraform.outputs.bucket }}/ --delete --cache-control "public,max-age=31536000,immutable" --exclude "index.html"
+          aws s3 cp dist/index.html s3://${{ steps.terraform.outputs.bucket }}/index.html --cache-control "public,max-age=0,must-revalidate"
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.terraform.outputs.distribution_id }} \
+            --paths "/*"
+
+      - name: Wait for invalidation
+        run: |
+          INVALIDATION_ID=$(aws cloudfront list-invalidations \
+            --distribution-id ${{ steps.terraform.outputs.distribution_id }} \
+            --query 'InvalidationList.Items[0].Id' \
+            --output text)
+
+          echo "Waiting for invalidation $INVALIDATION_ID to complete..."
+          aws cloudfront wait invalidation-completed \
+            --distribution-id ${{ steps.terraform.outputs.distribution_id }} \
+            --id $INVALIDATION_ID
+
+      - name: Summary
+        run: |
+          echo "## Deployment Complete 🎉" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend URL**: ${{ steps.terraform.outputs.cloudfront_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **API URL**: ${{ steps.terraform.outputs.api_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **S3 Bucket**: ${{ steps.terraform.outputs.bucket }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **CloudFront**: ${{ steps.terraform.outputs.distribution_id }}" >> $GITHUB_STEP_SUMMARY

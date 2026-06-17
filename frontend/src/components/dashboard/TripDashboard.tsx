@@ -67,10 +67,7 @@ const MetricCard = ({
         <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
           {label}
         </p>
-        <p
-          className="text-2xl font-bold"
-          style={{ color: "var(--text-primary)" }}
-        >
+        <p className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
           {value}
         </p>
       </div>
@@ -78,13 +75,7 @@ const MetricCard = ({
   </div>
 );
 
-export default function TripDashboard({
-  events,
-  onExport,
-  trip,
-  onUpdateStatus,
-  onDelete,
-}: Props) {
+export default function TripDashboard({ events, onExport, trip, onUpdateStatus, onDelete }: Props) {
   const {
     expandedSections,
     isStatusDropdownOpen,
@@ -95,15 +86,9 @@ export default function TripDashboard({
     setIsStatusDropdownOpen,
   } = useTripDashboard({ events });
 
-  const {
-    flightEvents,
-    hotelEvents,
-    attractionEvents,
-    activityEvents,
-    itineraryEvents,
-  } = eventGroups;
-  const { totalFlights, totalHotels, totalAttractions, totalActivities } =
-    counts;
+  const { flightEvents, hotelEvents, attractionEvents, activityEvents, itineraryEvents } =
+    eventGroups;
+  const { totalFlights, totalHotels, totalAttractions, totalActivities } = counts;
 
   return (
     <div className="h-full flex flex-col" style={{ background: "var(--bg)" }}>
@@ -118,21 +103,14 @@ export default function TripDashboard({
       >
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
-            <h1
-              className="text-base font-semibold"
-              style={{ color: "var(--text-primary)" }}
-            >
+            <h1 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>
               {trip.title}
             </h1>
-            <span
-              className="text-sm"
-              style={{ color: "var(--text-secondary)" }}
-            >
+            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
               {trip.dateFrom && trip.dateTo
                 ? `${trip.dateFrom} - ${trip.dateTo}`
                 : "Dates flexible"}{" "}
-              · {trip.travelersCount}{" "}
-              {trip.travelersCount === 1 ? "traveler" : "travelers"}
+              · {trip.travelersCount} {trip.travelersCount === 1 ? "traveler" : "travelers"}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -174,46 +152,41 @@ export default function TripDashboard({
                     borderColor: "var(--border)",
                   }}
                 >
-                  {(
-                    Object.keys(statusConfig) as Array<
-                      keyof typeof statusConfig
-                    >
-                  ).map((statusKey) => {
-                    const status = statusConfig[statusKey];
-                    const isSelected = trip.status === statusKey;
-                    return (
-                      <button
-                        key={statusKey}
-                        onClick={() => {
-                          onUpdateStatus(statusKey);
-                          setIsStatusDropdownOpen(false);
-                        }}
-                        className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                        style={{
-                          background: isSelected ? status.bg : "transparent",
-                        }}
-                      >
-                        <span
-                          className="inline-flex items-center gap-2 text-sm font-medium"
+                  {(Object.keys(statusConfig) as Array<keyof typeof statusConfig>).map(
+                    (statusKey) => {
+                      const status = statusConfig[statusKey];
+                      const isSelected = trip.status === statusKey;
+                      return (
+                        <button
+                          key={statusKey}
+                          onClick={() => {
+                            onUpdateStatus(statusKey);
+                            setIsStatusDropdownOpen(false);
+                          }}
+                          className="w-full px-4 py-2.5 flex items-center justify-between hover:bg-gray-50 transition-colors"
                           style={{
-                            color: status.color,
+                            background: isSelected ? status.bg : "transparent",
                           }}
                         >
                           <span
-                            className="w-2 h-2 rounded-full"
-                            style={{ background: status.color }}
-                          />
-                          {status.label}
-                        </span>
-                        {isSelected && (
-                          <Check
-                            className="w-4 h-4"
-                            style={{ color: "var(--accent)" }}
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
+                            className="inline-flex items-center gap-2 text-sm font-medium"
+                            style={{
+                              color: status.color,
+                            }}
+                          >
+                            <span
+                              className="w-2 h-2 rounded-full"
+                              style={{ background: status.color }}
+                            />
+                            {status.label}
+                          </span>
+                          {isSelected && (
+                            <Check className="w-4 h-4" style={{ color: "var(--accent)" }} />
+                          )}
+                        </button>
+                      );
+                    }
+                  )}
                 </div>
               )}
             </div>
@@ -254,16 +227,8 @@ export default function TripDashboard({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <MetricCard icon={Plane} label="Flights" value={totalFlights} />
             <MetricCard icon={Building2} label="Hotels" value={totalHotels} />
-            <MetricCard
-              icon={MapPin}
-              label="Attractions"
-              value={totalAttractions}
-            />
-            <MetricCard
-              icon={Calendar}
-              label="Activities"
-              value={totalActivities}
-            />
+            <MetricCard icon={MapPin} label="Attractions" value={totalAttractions} />
+            <MetricCard icon={Calendar} label="Activities" value={totalActivities} />
           </div>
         </div>
 
@@ -291,10 +256,7 @@ export default function TripDashboard({
                     const result = event.result as { flights?: unknown[] };
                     const flights = result.flights ?? [];
                     return flights.map((flight, idx) => (
-                      <FlightCard
-                        key={`${event.id}-${idx}`}
-                        flight={flight as never}
-                      />
+                      <FlightCard key={`${event.id}-${idx}`} flight={flight as never} />
                     ));
                   })}
                 </div>
@@ -312,10 +274,7 @@ export default function TripDashboard({
                     const result = event.result as { hotels?: unknown[] };
                     const hotels = result.hotels ?? [];
                     return hotels.map((hotel, idx) => (
-                      <HotelCard
-                        key={`${event.id}-${idx}`}
-                        hotel={hotel as never}
-                      />
+                      <HotelCard key={`${event.id}-${idx}`} hotel={hotel as never} />
                     ));
                   })}
                 </div>
@@ -333,10 +292,7 @@ export default function TripDashboard({
                     const result = event.result as { attractions?: unknown[] };
                     const attractions = result.attractions ?? [];
                     return attractions.map((attraction, idx) => (
-                      <AttractionCard
-                        key={`${event.id}-${idx}`}
-                        attraction={attraction as never}
-                      />
+                      <AttractionCard key={`${event.id}-${idx}`} attraction={attraction as never} />
                     ));
                   })}
                 </div>
@@ -354,10 +310,7 @@ export default function TripDashboard({
                     const result = event.result as { activities?: unknown[] };
                     const activities = result.activities ?? [];
                     return activities.map((activity, idx) => (
-                      <ActivityCard
-                        key={`${event.id}-${idx}`}
-                        activity={activity as never}
-                      />
+                      <ActivityCard key={`${event.id}-${idx}`} activity={activity as never} />
                     ));
                   })}
                 </div>
@@ -373,10 +326,7 @@ export default function TripDashboard({
                 >
                   <div className="space-y-3 mt-3">
                     {itineraryEvents.map((event) => (
-                      <ItineraryTimeline
-                        key={event.id}
-                        itinerary={event.result as never}
-                      />
+                      <ItineraryTimeline key={event.id} itinerary={event.result as never} />
                     ))}
                   </div>
                 </Section>

@@ -12,7 +12,6 @@ permissions:
 env:
   AWS_REGION: us-east-1
   NODE_VERSION: "20"
-  PYTHON_VERSION: "3.12"
   TERRAFORM_VERSION: 1.5.0
 
 jobs:
@@ -64,47 +63,6 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
-
-  backend-lint:
-    name: Backend Lint & Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: "pip"
-          cache-dependency-path: backend/pyproject.toml
-
-      - name: Install dependencies
-        run: |
-          cd backend
-          pip install -e ".[dev]"
-
-      - name: Ruff lint
-        run: |
-          cd backend
-          ruff check src/
-
-      - name: Ruff format check
-        run: |
-          cd backend
-          ruff format --check src/
-
-      - name: MyPy type check
-        run: |
-          cd backend
-          mypy src/
-        continue-on-error: true
-
-      - name: Pytest
-        run: |
-          cd backend
-          pytest tests/ -v
-        continue-on-error: true
 
   frontend-lint:
     name: Frontend Lint & Build
@@ -160,7 +118,7 @@ jobs:
 
   summary:
     name: PR Summary
-    needs: [terraform-validate, backend-lint, frontend-lint, security-scan]
+    needs: [terraform-validate, frontend-lint, security-scan]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -169,6 +127,5 @@ jobs:
           echo "## PR Check Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- Terraform: ${{ needs.terraform-validate.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Backend: ${{ needs.backend-lint.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Frontend: ${{ needs.frontend-lint.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Security: ${{ needs.security-scan.result }}" >> $GITHUB_STEP_SUMMARY

@@ -182,12 +182,13 @@ RETURNS INTEGER AS $$
 DECLARE
     v_inserted INTEGER;
 BEGIN
-    INSERT INTO messages (trip_id, role, content, tool_name, created_at)
+    INSERT INTO messages (trip_id, role, content, tool_name, tool_call_id, created_at)
     SELECT 
         (msg->>'trip_id')::UUID,
         msg->>'role',
         msg->>'content',
         msg->>'tool_name',
+        CASE WHEN msg->>'tool_call_id' IS NOT NULL THEN (msg->>'tool_call_id')::UUID ELSE NULL END,
         COALESCE(to_timestamp((msg->>'created_at')::DOUBLE PRECISION), CURRENT_TIMESTAMP)
     FROM jsonb_array_elements(p_messages) AS msg;
 
@@ -214,13 +215,14 @@ RETURNS TABLE (
     role VARCHAR(20),
     content TEXT,
     tool_name VARCHAR(50),
+    tool_call_id UUID,
     created_at TIMESTAMP
 ) AS $$
 BEGIN
     RETURN QUERY
     SELECT 
         m.message_id, m.trip_id, m.role, m.content,
-        m.tool_name, m.created_at
+        m.tool_name, m.tool_call_id, m.created_at
     FROM messages m
     WHERE m.trip_id = p_trip_id
       AND (p_after_timestamp IS NULL OR m.created_at > p_after_timestamp)

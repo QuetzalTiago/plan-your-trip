@@ -15,18 +15,10 @@ interface TabsProps {
   children: ReactNode;
 }
 
-export default function Tabs({
-  tabs,
-  activeTab,
-  onTabChange,
-  children,
-}: TabsProps) {
+export default function Tabs({ tabs, activeTab, onTabChange, children }: TabsProps) {
   return (
     <div className="flex flex-col h-full">
-      <div
-        className="flex gap-1 border-b px-6"
-        style={{ borderColor: "var(--border)" }}
-      >
+      <div className="flex gap-1 border-b px-6" style={{ borderColor: "var(--border)" }}>
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab;
           return (
@@ -45,12 +37,8 @@ export default function Tabs({
                   <span
                     className="text-xs px-2 py-0.5 rounded-full"
                     style={{
-                      background: isActive
-                        ? "var(--accent-light)"
-                        : "var(--border)",
-                      color: isActive
-                        ? "var(--accent)"
-                        : "var(--text-tertiary)",
+                      background: isActive ? "var(--accent-light)" : "var(--border)",
+                      color: isActive ? "var(--accent)" : "var(--text-tertiary)",
                     }}
                   >
                     {tab.count}

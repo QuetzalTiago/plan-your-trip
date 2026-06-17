@@ -25,10 +25,7 @@ export default function Library() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1
-            className="text-3xl font-bold mb-1"
-            style={{ color: "var(--text-primary)" }}
-          >
+          <h1 className="text-3xl font-bold mb-1" style={{ color: "var(--text-primary)" }}>
             My Trips
           </h1>
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -69,10 +66,7 @@ export default function Library() {
       </div>
 
       {/* Filter Pills */}
-      <div
-        className="flex gap-2 mb-8 p-1.5 rounded-xl w-fit"
-        style={{ background: "var(--bg)" }}
-      >
+      <div className="flex gap-2 mb-8 p-1.5 rounded-xl w-fit" style={{ background: "var(--bg)" }}>
         {(["all", "planning", "booked", "completed"] as const).map((s) => {
           const count = getFilterCount(s);
           const isActive = filter === s;
@@ -119,18 +113,12 @@ export default function Library() {
               >
                 <Globe size={40} style={{ color: "var(--accent)" }} />
               </div>
-              <h2
-                className="text-2xl font-bold mb-3"
-                style={{ color: "var(--text-primary)" }}
-              >
+              <h2 className="text-2xl font-bold mb-3" style={{ color: "var(--text-primary)" }}>
                 Start Your Adventure
               </h2>
-              <p
-                className="text-base mb-8"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                Create your first trip and let AI plan your perfect itinerary
-                with flights, hotels, and attractions.
+              <p className="text-base mb-8" style={{ color: "var(--text-secondary)" }}>
+                Create your first trip and let AI plan your perfect itinerary with flights, hotels,
+                and attractions.
               </p>
               <Link
                 to="/new"
@@ -184,10 +172,7 @@ export default function Library() {
                   >
                     {trip.destination_city}
                   </h2>
-                  <p
-                    className="text-sm mt-1"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
+                  <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
                     {trip.destination_country}
                   </p>
                 </div>
@@ -212,5 +197,3 @@ export default function Library() {
     </div>
   );
 }
-
-

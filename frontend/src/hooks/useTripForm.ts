@@ -78,12 +78,8 @@ export function useTripForm({ onSubmit, loading }: UseTripFormProps) {
 
     if (!selectedDestination) return;
 
-    const destination = DESTINATIONS.find(
-      (d) => `${d.city}, ${d.country}` === selectedDestination,
-    );
-    const origin = selectedOrigin
-      ? ORIGINS.find((o) => o.city === selectedOrigin)
-      : null;
+    const destination = DESTINATIONS.find((d) => `${d.city}, ${d.country}` === selectedDestination);
+    const origin = selectedOrigin ? ORIGINS.find((o) => o.city === selectedOrigin) : null;
 
     if (!destination) return;
 

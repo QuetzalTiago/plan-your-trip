@@ -125,6 +125,7 @@ def _row_to_message_item(row: dict, trip_id: str) -> MessageItem:
         role=row["role"],
         content=row["content"],
         tool_name=row["tool_name"],
+        tool_call_id=str(row["tool_call_id"]) if row.get("tool_call_id") else None,
         created_at=ts,
     )
 
@@ -347,9 +348,9 @@ def put_message(item: MessageItem) -> None:
                 cur.execute(
                     """
                     INSERT INTO messages (
-                        message_id, trip_id, role, content, tool_name, created_at
+                        message_id, trip_id, role, content, tool_name, tool_call_id, created_at
                     ) VALUES (
-                        %s, %s, %s, %s, %s, to_timestamp(%s / 1000.0)
+                        %s, %s, %s, %s, %s, %s, to_timestamp(%s / 1000.0)
                     )
                 """,
                     (
@@ -358,6 +359,7 @@ def put_message(item: MessageItem) -> None:
                         item.role,
                         item.content,
                         item.tool_name,
+                        item.tool_call_id,
                         item.created_at,
                     ),
                 )
@@ -382,6 +384,7 @@ def put_messages_batch(items: list[MessageItem]) -> None:
                             "role": m.role,
                             "content": m.content,
                             "tool_name": m.tool_name,
+                            "tool_call_id": m.tool_call_id,
                             "created_at": f"{m.created_at / 1000.0}",  # Convert to seconds
                         }
                         for m in items
@@ -405,7 +408,7 @@ def get_messages(trip_id: str, limit: int = 100, after: int = 0) -> list[Message
                 if after > 0:
                     cur.execute(
                         """
-                        SELECT message_id, trip_id, role, content, tool_name, created_at
+                        SELECT message_id, trip_id, role, content, tool_name, tool_call_id, created_at
                         FROM messages
                         WHERE trip_id = %s AND created_at > to_timestamp(%s / 1000.0)
                         ORDER BY created_at ASC
@@ -416,7 +419,7 @@ def get_messages(trip_id: str, limit: int = 100, after: int = 0) -> list[Message
                 else:
                     cur.execute(
                         """
-                        SELECT message_id, trip_id, role, content, tool_name, created_at
+                        SELECT message_id, trip_id, role, content, tool_name, tool_call_id, created_at
                         FROM messages
                         WHERE trip_id = %s
                         ORDER BY created_at ASC

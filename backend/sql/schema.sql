@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS messages (
     role VARCHAR(20) NOT NULL CHECK (role IN ('user', 'assistant', 'tool_call', 'tool_result')),
     content TEXT NOT NULL,
     tool_name VARCHAR(50),
+    tool_call_id UUID REFERENCES messages(message_id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -68,6 +69,7 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE INDEX idx_messages_trip_id ON messages(trip_id);
 CREATE INDEX idx_messages_created_at ON messages(created_at);
 CREATE INDEX idx_messages_trip_created ON messages(trip_id, created_at);
+CREATE INDEX idx_messages_tool_call_id ON messages(tool_call_id);
 
 -- ============================================================================
 -- ITINERARIES TABLE

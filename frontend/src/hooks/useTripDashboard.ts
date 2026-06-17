@@ -15,7 +15,7 @@ interface UseTripDashboardProps {
 
 export function useTripDashboard({ events }: UseTripDashboardProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(["flights", "hotels", "attractions", "activities", "itinerary"]),
+    new Set(["flights", "hotels", "attractions", "activities", "itinerary"])
   );
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const statusDropdownRef = useRef<HTMLDivElement>(null);
@@ -23,10 +23,7 @@ export function useTripDashboard({ events }: UseTripDashboardProps) {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        statusDropdownRef.current &&
-        !statusDropdownRef.current.contains(event.target as Node)
-      ) {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
         setIsStatusDropdownOpen(false);
       }
     };
@@ -48,18 +45,14 @@ export function useTripDashboard({ events }: UseTripDashboardProps) {
   // Group events by tool type using useMemo for performance
   const eventGroups = useMemo(() => {
     const flightEvents = events.filter(
-      (e) => e.tool === "search_flights" || e.tool === "search_cheapest_dates",
+      (e) => e.tool === "search_flights" || e.tool === "search_cheapest_dates"
     );
     const hotelEvents = events.filter(
-      (e) => e.tool === "search_hotels" || e.tool === "get_hotel_ratings",
+      (e) => e.tool === "search_hotels" || e.tool === "get_hotel_ratings"
     );
     const attractionEvents = events.filter((e) => e.tool === "get_attractions");
-    const activityEvents = events.filter(
-      (e) => e.tool === "get_tours_activities",
-    );
-    const itineraryEvents = events.filter(
-      (e) => e.tool === "build_day_itinerary",
-    );
+    const activityEvents = events.filter((e) => e.tool === "get_tours_activities");
+    const itineraryEvents = events.filter((e) => e.tool === "build_day_itinerary");
 
     return {
       flightEvents,

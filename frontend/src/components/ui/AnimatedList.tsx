@@ -31,12 +31,7 @@ export default function AnimatedList({
   };
 
   return (
-    <motion.div
-      className={className}
-      variants={container}
-      initial="hidden"
-      animate="show"
-    >
+    <motion.div className={className} variants={container} initial="hidden" animate="show">
       {children.map((child, index) => (
         <motion.div key={index} variants={item}>
           {child}

@@ -23,10 +23,7 @@ export function MetricCardSkeleton() {
 
 export function SectionSkeleton({ icon: Icon }: { icon: typeof Plane }) {
   return (
-    <div
-      className="border rounded-lg overflow-hidden"
-      style={{ borderColor: "var(--border)" }}
-    >
+    <div className="border rounded-lg overflow-hidden" style={{ borderColor: "var(--border)" }}>
       <div
         className="px-6 py-4 flex items-center justify-between"
         style={{ background: "var(--surface)" }}

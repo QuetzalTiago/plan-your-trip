@@ -95,22 +95,15 @@ export default function SignIn() {
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
             style={{
-              background:
-                "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+              background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
             }}
           >
             <Globe size={32} color="white" />
           </div>
-          <h1
-            className="text-2xl font-semibold"
-            style={{ color: "var(--text-primary)" }}
-          >
+          <h1 className="text-2xl font-semibold" style={{ color: "var(--text-primary)" }}>
             Plan Your Journey
           </h1>
-          <p
-            className="mt-2 text-sm"
-            style={{ color: "var(--text-secondary)" }}
-          >
+          <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
             Your AI-powered travel planning assistant
           </p>
         </div>
@@ -136,10 +129,7 @@ export default function SignIn() {
                 ? "Create an account"
                 : "Sign in"}
           </h2>
-          <p
-            className="text-sm text-center mb-6"
-            style={{ color: "var(--text-secondary)" }}
-          >
+          <p className="text-sm text-center mb-6" style={{ color: "var(--text-secondary)" }}>
             {mode === "confirm"
               ? `Enter the verification code sent to ${email}`
               : mode === "signup"
@@ -195,8 +185,7 @@ export default function SignIn() {
                 disabled={loading || !confirmationCode.trim()}
                 className="w-full text-sm font-medium py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg flex items-center justify-center gap-2"
                 style={{
-                  background:
-                    "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+                  background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
                   color: "white",
                 }}
               >
@@ -266,12 +255,8 @@ export default function SignIn() {
               />
 
               {mode === "signup" && (
-                <p
-                  className="text-xs"
-                  style={{ color: "var(--text-tertiary)" }}
-                >
-                  Password must be at least 12 characters with uppercase,
-                  lowercase, and numbers.
+                <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+                  Password must be at least 12 characters with uppercase, lowercase, and numbers.
                 </p>
               )}
 
@@ -294,17 +279,14 @@ export default function SignIn() {
                 disabled={loading || !email.trim() || !password.trim()}
                 className="w-full text-sm font-medium py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg flex items-center justify-center gap-2"
                 style={{
-                  background:
-                    "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+                  background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
                   color: "white",
                 }}
               >
                 {loading ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    {mode === "signup"
-                      ? "Creating account..."
-                      : "Signing in..."}
+                    {mode === "signup" ? "Creating account..." : "Signing in..."}
                   </>
                 ) : (
                   <>

@@ -1,0 +1,16 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Build outputs
+dist
+build
+.vite
+
+# Cache
+.cache
+.parcel-cache
+
+# Config files that should not be formatted
+pnpm-lock.yaml
+yarn.lock

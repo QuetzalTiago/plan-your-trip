@@ -11,12 +11,7 @@ interface SidebarProps {
   onToggleCollapse: () => void;
 }
 
-export default function Sidebar({
-  isOpen,
-  onClose,
-  isCollapsed,
-  onToggleCollapse,
-}: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse }: SidebarProps) {
   const { user, trips, loading, handleSignOut, handleNavigation } = useSidebar({ onClose });
 
   if (isCollapsed) {
@@ -51,11 +46,7 @@ export default function Sidebar({
     >
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
-        <NavLink
-          to="/"
-          className="flex items-center gap-2 group"
-          onClick={handleNavigation}
-        >
+        <NavLink to="/" className="flex items-center gap-2 group" onClick={handleNavigation}>
           <span
             className="text-lg font-semibold transition-colors group-hover:text-accent"
             style={{ color: "var(--text-primary)" }}
@@ -89,8 +80,7 @@ export default function Sidebar({
         onClick={handleNavigation}
         className="w-full mb-6 px-4 py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all hover:scale-105 hover:shadow-md"
         style={{
-          background:
-            "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+          background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
           color: "white",
         }}
       >
@@ -108,17 +98,11 @@ export default function Sidebar({
         </h3>
         <div className="flex-1 overflow-y-auto space-y-1">
           {loading ? (
-            <div
-              className="px-3 py-3 text-sm"
-              style={{ color: "var(--text-secondary)" }}
-            >
+            <div className="px-3 py-3 text-sm" style={{ color: "var(--text-secondary)" }}>
               Loading trips...
             </div>
           ) : trips.length === 0 ? (
-            <div
-              className="px-3 py-4 text-sm"
-              style={{ color: "var(--text-secondary)" }}
-            >
+            <div className="px-3 py-4 text-sm" style={{ color: "var(--text-secondary)" }}>
               No trips yet. Create your first trip!
             </div>
           ) : (
@@ -129,9 +113,7 @@ export default function Sidebar({
                 className={({ isActive }) =>
                   [
                     "block px-3 py-3 rounded-lg text-sm transition-all relative",
-                    isActive
-                      ? "bg-accent-light shadow-sm"
-                      : "hover:bg-surface-hover",
+                    isActive ? "bg-accent-light shadow-sm" : "hover:bg-surface-hover",
                   ].join(" ")
                 }
                 onClick={handleNavigation}
@@ -149,9 +131,7 @@ export default function Sidebar({
                         <div
                           className="font-medium truncate"
                           style={{
-                            color: isActive
-                              ? "var(--accent)"
-                              : "var(--text-primary)",
+                            color: isActive ? "var(--accent)" : "var(--text-primary)",
                           }}
                         >
                           {trip.destination_city}
@@ -163,10 +143,7 @@ export default function Sidebar({
                           {trip.destination_country}
                         </div>
                       </div>
-                      <StatusBadge
-                        status={trip.status as Trip["status"]}
-                        showLabel={false}
-                      />
+                      <StatusBadge status={trip.status as Trip["status"]} showLabel={false} />
                     </div>
                   </>
                 )}
@@ -178,16 +155,12 @@ export default function Sidebar({
 
       {/* User Section */}
       {user && (
-        <div
-          className="border-t pt-4 mt-4"
-          style={{ borderColor: "var(--border)" }}
-        >
+        <div className="border-t pt-4 mt-4" style={{ borderColor: "var(--border)" }}>
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-white text-sm"
               style={{
-                background:
-                  "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+                background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
               }}
             >
               {user.email[0].toUpperCase()}
@@ -222,9 +195,3 @@ export default function Sidebar({
     </aside>
   );
 }
-
-
-
-
-
-

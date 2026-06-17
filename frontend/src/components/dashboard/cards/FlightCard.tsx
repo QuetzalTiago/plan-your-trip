@@ -23,11 +23,7 @@ export default function FlightCard({ flight }: Props) {
 
   const carbonDiff = flight.carbon_emissions?.difference_percent ?? 0;
   const carbonColor =
-    carbonDiff > 10
-      ? "text-red-600"
-      : carbonDiff < -10
-        ? "text-green-600"
-        : "text-gray-600";
+    carbonDiff > 10 ? "text-red-600" : carbonDiff < -10 ? "text-green-600" : "text-gray-600";
 
   return (
     <div
@@ -36,16 +32,10 @@ export default function FlightCard({ flight }: Props) {
     >
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h4
-            className="font-bold text-base"
-            style={{ color: "var(--text-primary)" }}
-          >
+          <h4 className="font-bold text-base" style={{ color: "var(--text-primary)" }}>
             ✈️ {flight.airline}
           </h4>
-          <p
-            className="text-sm mt-1"
-            style={{ color: "var(--text-secondary)" }}
-          >
+          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
             {flight.departure} → {flight.arrival}
           </p>
         </div>
@@ -70,10 +60,7 @@ export default function FlightCard({ flight }: Props) {
           🔄 {flight.stops} {flight.stops === 1 ? "stop" : "stops"}
         </span>
         {flight.carbon_emissions && (
-          <span
-            className={`px-2 py-1 rounded ${carbonColor}`}
-            style={{ background: "var(--bg)" }}
-          >
+          <span className={`px-2 py-1 rounded ${carbonColor}`} style={{ background: "var(--bg)" }}>
             🌱 {carbonDiff > 0 ? "+" : ""}
             {carbonDiff}% CO₂
           </span>

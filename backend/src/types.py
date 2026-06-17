@@ -180,6 +180,7 @@ class MessageItem:
     role: str  # MessageRole value
     content: str
     tool_name: str | None = None
+    tool_call_id: str | None = None
     created_at: int = 0
 
 

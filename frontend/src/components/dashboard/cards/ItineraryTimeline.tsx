@@ -33,10 +33,7 @@ export default function ItineraryTimeline({ itinerary }: Props) {
       style={{ background: "var(--surface)", borderColor: "var(--border)" }}
     >
       <div className="mb-4">
-        <h4
-          className="font-bold text-base"
-          style={{ color: "var(--text-primary)" }}
-        >
+        <h4 className="font-bold text-base" style={{ color: "var(--text-primary)" }}>
           📅 {itinerary.total_days}-Day Itinerary: {itinerary.destination}
         </h4>
         <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
@@ -56,21 +53,14 @@ export default function ItineraryTimeline({ itinerary }: Props) {
               style={{ background: "var(--accent)" }}
             />
             <div className="mb-3">
-              <h5
-                className="font-semibold text-sm"
-                style={{ color: "var(--text-primary)" }}
-              >
+              <h5 className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
                 Day {day.day}
               </h5>
             </div>
 
             <div className="space-y-2">
               {day.activities.map((activity, idx) => (
-                <div
-                  key={idx}
-                  className="p-2 rounded"
-                  style={{ background: "var(--bg)" }}
-                >
+                <div key={idx} className="p-2 rounded" style={{ background: "var(--bg)" }}>
                   <div className="flex items-start gap-2">
                     <span
                       className="text-xs font-mono shrink-0"
@@ -79,17 +69,10 @@ export default function ItineraryTimeline({ itinerary }: Props) {
                       {activity.time}
                     </span>
                     <div className="flex-1">
-                      <p
-                        className="text-sm font-medium"
-                        style={{ color: "var(--text-primary)" }}
-                      >
-                        {activity.type === "attraction" ? "🎯" : "🎭"}{" "}
-                        {activity.name}
+                      <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                        {activity.type === "attraction" ? "🎯" : "🎭"} {activity.name}
                       </p>
-                      <p
-                        className="text-xs"
-                        style={{ color: "var(--text-secondary)" }}
-                      >
+                      <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
                         📍 {activity.location}
                       </p>
                       {activity.notes && (

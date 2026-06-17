@@ -9,9 +9,7 @@ import SignIn from "./pages/SignIn";
 export default function App() {
   return (
     <div className="h-full">
-      <BrowserRouter
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/signin" element={<SignIn />} />

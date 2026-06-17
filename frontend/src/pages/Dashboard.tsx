@@ -29,10 +29,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div
-          className="animate-pulse text-sm"
-          style={{ color: "var(--text-secondary)" }}
-        >
+        <div className="animate-pulse text-sm" style={{ color: "var(--text-secondary)" }}>
           Loading trip…
         </div>
       </div>
@@ -80,14 +77,8 @@ export default function Dashboard() {
             }}
           >
             <div className="flex items-center gap-2">
-              <MessageCircle
-                className="w-5 h-5"
-                style={{ color: "var(--accent)" }}
-              />
-              <h3
-                className="font-semibold text-base"
-                style={{ color: "var(--text-primary)" }}
-              >
+              <MessageCircle className="w-5 h-5" style={{ color: "var(--accent)" }} />
+              <h3 className="font-semibold text-base" style={{ color: "var(--text-primary)" }}>
                 AI Assistant
               </h3>
             </div>
@@ -96,10 +87,7 @@ export default function Dashboard() {
               className="p-1.5 rounded hover:bg-slate-100 transition-colors"
               aria-label="Collapse chat"
             >
-              <ChevronRight
-                className="w-5 h-5"
-                style={{ color: "var(--text-secondary)" }}
-              />
+              <ChevronRight className="w-5 h-5" style={{ color: "var(--text-secondary)" }} />
             </button>
           </div>
 
@@ -107,10 +95,7 @@ export default function Dashboard() {
           <div className="flex-1 overflow-y-auto px-4 py-4">
             <div className="space-y-4">
               {messages
-                .filter(
-                  (msg) =>
-                    msg.role !== "tool_call" && msg.role !== "tool_result",
-                )
+                .filter((msg) => msg.role !== "tool_call" && msg.role !== "tool_result")
                 .map((msg) => ({
                   ...msg,
                   hydrated: hydrateContent(msg.content),
@@ -141,9 +126,7 @@ export default function Dashboard() {
                         >
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {replaceCoordinatesWithLinks(
-                              msg.hydrated.type === "text"
-                                ? msg.hydrated.content
-                                : msg.content,
+                              msg.hydrated.type === "text" ? msg.hydrated.content : msg.content
                             )}
                           </ReactMarkdown>
                         </div>
@@ -181,18 +164,13 @@ export default function Dashboard() {
           </div>
 
           {/* Input */}
-          <div
-            className="p-4 border-t flex-shrink-0"
-            style={{ borderColor: "var(--border)" }}
-          >
+          <div className="p-4 border-t flex-shrink-0" style={{ borderColor: "var(--border)" }}>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) =>
-                  e.key === "Enter" && !e.shiftKey && handleSend()
-                }
+                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
                 placeholder="Ask about your trip..."
                 disabled={streaming}
                 className="flex-1 px-3 py-2 rounded-lg border outline-none disabled:opacity-50 text-sm"

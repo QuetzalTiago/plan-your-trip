@@ -32,22 +32,25 @@ export function useLibrary() {
     loadTrips();
   }, [loadTrips]);
 
-  const handleDelete = useCallback(async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!confirm("Delete this trip? This cannot be undone.")) return;
-    setDeletingId(id);
-    try {
-      await deleteTrip(id, token);
-      removeTrip(id);
-      setMessages([]);
-      clearTripEvents();
-    } catch (err) {
-      console.error("Failed to delete trip:", err);
-      alert("Failed to delete trip. Please try again.");
-    } finally {
-      setDeletingId(null);
-    }
-  }, [token, removeTrip, setMessages, clearTripEvents]);
+  const handleDelete = useCallback(
+    async (id: string, e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!confirm("Delete this trip? This cannot be undone.")) return;
+      setDeletingId(id);
+      try {
+        await deleteTrip(id, token);
+        removeTrip(id);
+        setMessages([]);
+        clearTripEvents();
+      } catch (err) {
+        console.error("Failed to delete trip:", err);
+        alert("Failed to delete trip. Please try again.");
+      } finally {
+        setDeletingId(null);
+      }
+    },
+    [token, removeTrip, setMessages, clearTripEvents]
+  );
 
   // Filter trips using useMemo for performance
   const filtered = useMemo(() => {
@@ -62,10 +65,13 @@ export function useLibrary() {
     });
   }, [trips, filter, search]);
 
-  const getFilterCount = useCallback((status: StatusFilter) => {
-    if (status === "all") return trips.length;
-    return trips.filter((t) => t.status === status).length;
-  }, [trips]);
+  const getFilterCount = useCallback(
+    (status: StatusFilter) => {
+      if (status === "all") return trips.length;
+      return trips.filter((t) => t.status === status).length;
+    },
+    [trips]
+  );
 
   return {
     // State
@@ -75,7 +81,7 @@ export function useLibrary() {
     deletingId,
     trips,
     filtered,
-    
+
     // Actions
     setFilter,
     setSearch,

@@ -19,10 +19,7 @@ export default function Section({
   onToggle,
 }: SectionProps) {
   return (
-    <div
-      className="border rounded-lg overflow-hidden"
-      style={{ borderColor: "var(--border)" }}
-    >
+    <div className="border rounded-lg overflow-hidden" style={{ borderColor: "var(--border)" }}>
       <button
         onClick={onToggle}
         className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors"
@@ -30,10 +27,7 @@ export default function Section({
       >
         <div className="flex items-center gap-3">
           <Icon className="w-5 h-5" style={{ color: "var(--accent)" }} />
-          <span
-            className="text-base font-semibold"
-            style={{ color: "var(--text-primary)" }}
-          >
+          <span className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>
             {title}
           </span>
           <span
@@ -47,24 +41,15 @@ export default function Section({
           </span>
         </div>
         {isExpanded ? (
-          <ChevronDown
-            className="w-5 h-5"
-            style={{ color: "var(--text-secondary)" }}
-          />
+          <ChevronDown className="w-5 h-5" style={{ color: "var(--text-secondary)" }} />
         ) : (
-          <ChevronRight
-            className="w-5 h-5"
-            style={{ color: "var(--text-secondary)" }}
-          />
+          <ChevronRight className="w-5 h-5" style={{ color: "var(--text-secondary)" }} />
         )}
       </button>
       {isExpanded && (
         <div className="px-6 pb-6 pt-2" style={{ background: "var(--bg)" }}>
           {count === 0 ? (
-            <p
-              className="text-sm text-center py-8"
-              style={{ color: "var(--text-secondary)" }}
-            >
+            <p className="text-sm text-center py-8" style={{ color: "var(--text-secondary)" }}>
               No data available yet
             </p>
           ) : (

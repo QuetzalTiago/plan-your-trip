@@ -80,7 +80,7 @@ export function useDashboard() {
               content: m.content,
               toolName: m.tool_name ?? undefined,
               createdAt: m.created_at,
-            })),
+            }))
           );
         }
 
@@ -145,7 +145,7 @@ export function useDashboard() {
                 content: m.content,
                 toolName: m.tool_name ?? undefined,
                 createdAt: m.created_at,
-              })),
+              }))
             );
             clearStream();
           } catch (err) {
@@ -164,7 +164,7 @@ export function useDashboard() {
           addMessage(errMsg);
           setStreaming(false);
           clearStream();
-        },
+        }
       );
     }
   }, [
@@ -232,7 +232,7 @@ export function useDashboard() {
               content: m.content,
               toolName: m.tool_name ?? undefined,
               createdAt: m.created_at,
-            })),
+            }))
           );
           clearStream();
         } catch (err) {
@@ -251,9 +251,21 @@ export function useDashboard() {
         addMessage(errMsg);
         setStreaming(false);
         clearStream();
-      },
+      }
     );
-  }, [input, streaming, trip, token, addMessage, appendStream, clearStream, setActiveTool, setStreaming, setMessages, addTripEvent]);
+  }, [
+    input,
+    streaming,
+    trip,
+    token,
+    addMessage,
+    appendStream,
+    clearStream,
+    setActiveTool,
+    setStreaming,
+    setMessages,
+    addTripEvent,
+  ]);
 
   const handleExportData = useCallback(() => {
     const dataStr = JSON.stringify(tripEvents, null, 2);
@@ -282,15 +294,18 @@ export function useDashboard() {
     }
   }, [trip, token, setMessages, clearTripEvents, removeTrip, navigate]);
 
-  const handleUpdateStatus = useCallback(async (status: string) => {
-    if (!trip) return;
-    try {
-      await updateTripStatus(trip.id, status, token);
-      setTrip({ ...trip, status: status as Trip["status"] });
-    } catch (err) {
-      console.error("Failed to update status:", err);
-    }
-  }, [trip, token]);
+  const handleUpdateStatus = useCallback(
+    async (status: string) => {
+      if (!trip) return;
+      try {
+        await updateTripStatus(trip.id, status, token);
+        setTrip({ ...trip, status: status as Trip["status"] });
+      } catch (err) {
+        console.error("Failed to update status:", err);
+      }
+    },
+    [trip, token]
+  );
 
   return {
     // State

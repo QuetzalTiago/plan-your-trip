@@ -352,7 +352,7 @@ async def run_agent_loop(
                     }
                     yield json.dumps(debug_event)
 
-            # Save tool result message
+            # Save tool result message with explicit link to tool call
             result_timestamp = int(time.time() * 1000)
             tool_result_msg = MessageItem(
                 trip_id=trip.trip_id,
@@ -360,6 +360,7 @@ async def run_agent_loop(
                 role="tool_result",
                 content=json.dumps(result),
                 tool_name=tool_name,
+                tool_call_id=tool_call_messages[idx].message_id,
                 created_at=result_timestamp,
             )
             tool_result_messages.append(tool_result_msg)

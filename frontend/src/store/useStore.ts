@@ -91,8 +91,7 @@ export const useStore = create<AppState>((set) => ({
   },
 
   setStreaming: (streaming) => set({ streaming }),
-  appendStream: (chunk) =>
-    set((s) => ({ streamContent: s.streamContent + chunk })),
+  appendStream: (chunk) => set((s) => ({ streamContent: s.streamContent + chunk })),
   clearStream: () => set({ streamContent: "", activeTool: null }),
   setActiveTool: (tool) => set({ activeTool: tool }),
   setMessages: (messages) => set({ messages }),
@@ -108,4 +107,3 @@ export const useStore = create<AppState>((set) => ({
   addTrip: (trip) => set((s) => ({ trips: [trip, ...s.trips] })),
   removeTrip: (tripId) => set((s) => ({ trips: s.trips.filter((t) => t.id !== tripId) })),
 }));
-

@@ -25,19 +25,13 @@ export default function HotelCard({ hotel }: Props) {
     >
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
-          <h4
-            className="font-bold text-base"
-            style={{ color: "var(--text-primary)" }}
-          >
+          <h4 className="font-bold text-base" style={{ color: "var(--text-primary)" }}>
             🏨 {hotel.name}
           </h4>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-sm">{stars}</span>
             {hotel.reviews > 0 && (
-              <span
-                className="text-xs"
-                style={{ color: "var(--text-tertiary)" }}
-              >
+              <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>
                 ({hotel.reviews.toLocaleString()} reviews)
               </span>
             )}
@@ -54,10 +48,7 @@ export default function HotelCard({ hotel }: Props) {
       </div>
 
       {hotel.description && (
-        <p
-          className="text-sm mb-2 line-clamp-2"
-          style={{ color: "var(--text-secondary)" }}
-        >
+        <p className="text-sm mb-2 line-clamp-2" style={{ color: "var(--text-secondary)" }}>
           {hotel.description}
         </p>
       )}
@@ -77,10 +68,7 @@ export default function HotelCard({ hotel }: Props) {
             </span>
           ))}
           {hotel.amenities.length > 5 && (
-            <span
-              className="text-xs px-2 py-0.5"
-              style={{ color: "var(--text-tertiary)" }}
-            >
+            <span className="text-xs px-2 py-0.5" style={{ color: "var(--text-tertiary)" }}>
               +{hotel.amenities.length - 5} more
             </span>
           )}

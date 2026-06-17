@@ -6,10 +6,7 @@ interface StatusBadgeProps {
   showLabel?: boolean;
 }
 
-export default function StatusBadge({
-  status,
-  showLabel = true,
-}: StatusBadgeProps) {
+export default function StatusBadge({ status, showLabel = true }: StatusBadgeProps) {
   const config = statusConfig[status];
 
   if (showLabel) {
@@ -21,10 +18,7 @@ export default function StatusBadge({
           color: config.color,
         }}
       >
-        <span
-          className="w-1.5 h-1.5 rounded-full"
-          style={{ background: config.color }}
-        />
+        <span className="w-1.5 h-1.5 rounded-full" style={{ background: config.color }} />
         {config.label}
       </span>
     );

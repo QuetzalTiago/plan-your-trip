@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_API_URL ?? "";
 
 export async function apiFetch<T>(
   path: string,
-  options: RequestInit & { token?: string } = {},
+  options: RequestInit & { token?: string } = {}
 ): Promise<T> {
   const { token, headers: extraHeaders, ...rest } = options;
 
@@ -15,15 +15,14 @@ export async function apiFetch<T>(
 
   // Local dev: use X-User-Id header
   if ((!token || token === "") && import.meta.env.DEV) {
-    headers["X-User-Id"] =
-      import.meta.env.VITE_USER_ID || "00000000-0000-0000-0000-000000000001";
+    headers["X-User-Id"] = import.meta.env.VITE_USER_ID || "00000000-0000-0000-0000-000000000001";
   } else if (token) {
     headers["Authorization"] = `Bearer ${token}`;
     console.log(
       "[API] Sending request to:",
       `${BASE_URL}${path}`,
       "with token:",
-      token.substring(0, 50) + "...",
+      token.substring(0, 50) + "..."
     );
   }
 
@@ -85,10 +84,7 @@ export interface TripResponse {
   auto_planning_enabled?: boolean;
 }
 
-export async function createTrip(
-  data: CreateTripRequest,
-  token?: string,
-): Promise<TripResponse> {
+export async function createTrip(data: CreateTripRequest, token?: string): Promise<TripResponse> {
   return apiFetch<TripResponse>("/trips", {
     method: "POST",
     body: JSON.stringify(data),
@@ -109,10 +105,7 @@ export async function listTrips(token?: string): Promise<TripListItem[]> {
   return apiFetch<TripListItem[]>("/trips", { token });
 }
 
-export async function getTrip(
-  id: string,
-  token?: string,
-): Promise<TripResponse> {
+export async function getTrip(id: string, token?: string): Promise<TripResponse> {
   return apiFetch<TripResponse>(`/trips/${id}`, { token });
 }
 
@@ -125,17 +118,14 @@ export interface TripEvent {
   duration: number;
 }
 
-export async function getTripEvents(
-  tripId: string,
-  token?: string,
-): Promise<TripEvent[]> {
+export async function getTripEvents(tripId: string, token?: string): Promise<TripEvent[]> {
   return apiFetch<TripEvent[]>(`/trips/${tripId}/events`, { token });
 }
 
 export async function updateTripStatus(
   id: string,
   status: string,
-  token?: string,
+  token?: string
 ): Promise<TripResponse> {
   return apiFetch<TripResponse>(`/trips/${id}`, {
     method: "PATCH",
@@ -164,7 +154,7 @@ export function streamChat(
     duration: number;
   }) => void,
   onDone: () => void,
-  onError: (err: Error) => void,
+  onError: (err: Error) => void
 ): () => void {
   const url = `${BASE_URL}/trips/${tripId}/chat`;
   const aborter = new AbortController();
@@ -175,8 +165,7 @@ export function streamChat(
 
   // Local dev: use X-User-Id header
   if ((!token || token === "") && import.meta.env.DEV) {
-    headers["X-User-Id"] =
-      import.meta.env.VITE_USER_ID || "00000000-0000-0000-0000-000000000001";
+    headers["X-User-Id"] = import.meta.env.VITE_USER_ID || "00000000-0000-0000-0000-000000000001";
   } else if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
@@ -231,9 +220,7 @@ export function streamChat(
             switch (event.type) {
               case "text":
                 // Regular text content
-                const toolMatch = event.content.match(
-                  /🔧 _Using tool: (.+?)\.\.\._/,
-                );
+                const toolMatch = event.content.match(/🔧 _Using tool: (.+?)\.\.\._/);
                 if (toolMatch) {
                   onToolCall(toolMatch[1]);
                 }
@@ -302,7 +289,7 @@ export interface MessageResponse {
 export async function getMessages(
   tripId: string,
   token?: string,
-  after: number = 0,
+  after: number = 0
 ): Promise<MessageResponse[]> {
   const params = after ? `?after=${after}` : "";
   return apiFetch<MessageResponse[]>(`/trips/${tripId}/messages${params}`, {
@@ -351,7 +338,7 @@ export interface ItineraryResponse {
 
 export async function getItinerary(
   tripId: string,
-  token?: string,
+  token?: string
 ): Promise<ItineraryResponse | null> {
   return apiFetch<ItineraryResponse | null>(`/trips/${tripId}/itinerary`, {
     token,
@@ -360,10 +347,7 @@ export async function getItinerary(
 
 // ─── Export ───────────────────────────────────────────────────────────────────
 
-export async function exportTrip(
-  tripId: string,
-  token: string,
-): Promise<string> {
+export async function exportTrip(tripId: string, token: string): Promise<string> {
   const res = await fetch(`${BASE_URL}/export/${tripId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -389,7 +373,5 @@ export interface TokenResponse {
 }
 
 export async function verifyMagicLink(token: string): Promise<TokenResponse> {
-  return apiFetch<TokenResponse>(
-    `/auth/verify?token=${encodeURIComponent(token)}`,
-  );
+  return apiFetch<TokenResponse>(`/auth/verify?token=${encodeURIComponent(token)}`);
 }

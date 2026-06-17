@@ -24,7 +24,7 @@ export function useSidebar({ onClose }: UseSidebarProps) {
       token ? "present" : "none",
       ", dev:",
       import.meta.env.DEV,
-      ")",
+      ")"
     );
 
     try {
@@ -61,7 +61,7 @@ export function useSidebar({ onClose }: UseSidebarProps) {
     user,
     trips,
     loading,
-    
+
     // Actions
     handleSignOut,
     handleNavigation,

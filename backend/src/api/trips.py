@@ -188,11 +188,11 @@ async def get_trip_events(
     # Get all messages and filter for tool_call and tool_result
     messages = db.get_messages(trip_id, limit=1000)
 
-    # Separate tool calls and results
+    # Build map of tool call messages by message_id
     tool_calls = {msg.message_id: msg for msg in messages if msg.role == "tool_call"}
     tool_results = [msg for msg in messages if msg.role == "tool_result"]
 
-    # Transform to frontend format
+    # Transform to frontend format using tool_call_id link
     events = []
     for result_msg in tool_results:
         try:
@@ -203,24 +203,21 @@ async def get_trip_events(
                 else result_msg.content
             )
 
-            # Try to find matching tool call to get args
+            # Find matching tool call via tool_call_id foreign key
             args = {}
-            # Look for tool call messages close in time with same tool_name
-            for call_msg in tool_calls.values():
-                if (
-                    call_msg.tool_name == result_msg.tool_name
-                    and abs(call_msg.created_at - result_msg.created_at) < 60000
-                ):  # Within 60s
-                    try:
-                        call_data = (
-                            json.loads(call_msg.content)
-                            if isinstance(call_msg.content, str)
-                            else call_msg.content
-                        )
-                        args = call_data.get("args", {})
-                        break
-                    except (json.JSONDecodeError, AttributeError):
-                        pass
+            if result_msg.tool_call_id and result_msg.tool_call_id in tool_calls:
+                call_msg = tool_calls[result_msg.tool_call_id]
+                try:
+                    call_data = (
+                        json.loads(call_msg.content)
+                        if isinstance(call_msg.content, str)
+                        else call_msg.content
+                    )
+                    args = call_data.get("args", {})
+                except (json.JSONDecodeError, AttributeError):
+                    logger.warning(
+                        f"Failed to parse tool call JSON for message {call_msg.message_id}"
+                    )
 
             events.append(
                 {

@@ -41,9 +41,9 @@ export default function Home() {
           budget_range: data.budgetRange,
           trip_style: data.tripStyle,
         },
-        token || "",
+        token || ""
       );
-      
+
       // Add the new trip to the sidebar list
       addTrip({
         id: res.id,
@@ -53,7 +53,7 @@ export default function Home() {
         status: res.status,
         created_at: res.created_at,
       });
-      
+
       navigate(`/trips/${res.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to create trip");
@@ -75,8 +75,7 @@ export default function Home() {
           <h1
             className="text-4xl font-bold mb-3"
             style={{
-              background:
-                "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+              background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
@@ -84,12 +83,9 @@ export default function Home() {
           >
             Plan Your Journey
           </h1>
-          <p
-            className="text-lg max-w-xl mx-auto"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            Tell us where you want to go and we'll create a personalized
-            itinerary with flights, hotels, and activities.
+          <p className="text-lg max-w-xl mx-auto" style={{ color: "var(--text-secondary)" }}>
+            Tell us where you want to go and we'll create a personalized itinerary with flights,
+            hotels, and activities.
           </p>
         </div>
 

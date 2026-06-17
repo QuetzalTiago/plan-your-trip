@@ -81,10 +81,7 @@ export default function TripForm({ onSubmit, loading }: TripFormProps) {
             >
               <option value="">Select a destination...</option>
               {destinations.map((dest) => (
-                <option
-                  key={`${dest.city}-${dest.iata}`}
-                  value={`${dest.city}, ${dest.country}`}
-                >
+                <option key={`${dest.city}-${dest.iata}`} value={`${dest.city}, ${dest.country}`}>
                   {dest.city}, {dest.country}
                 </option>
               ))}
@@ -144,14 +141,11 @@ export default function TripForm({ onSubmit, loading }: TripFormProps) {
           />
           <div
             className={`flex items-center gap-3 w-full pl-12 pr-4 py-3 rounded-xl border transition-all ${
-              errors.dateFrom || errors.dateTo
-                ? "ring-2 ring-red-500 border-red-500"
-                : ""
+              errors.dateFrom || errors.dateTo ? "ring-2 ring-red-500 border-red-500" : ""
             }`}
             style={{
               background: "var(--surface)",
-              borderColor:
-                errors.dateFrom || errors.dateTo ? "#ef4444" : "var(--border)",
+              borderColor: errors.dateFrom || errors.dateTo ? "#ef4444" : "var(--border)",
             }}
           >
             <input
@@ -163,9 +157,7 @@ export default function TripForm({ onSubmit, loading }: TripFormProps) {
               placeholder="Start date"
               className="flex-1 bg-transparent outline-none text-sm"
               style={{
-                color: dateFrom
-                  ? "var(--text-primary)"
-                  : "var(--text-tertiary)",
+                color: dateFrom ? "var(--text-primary)" : "var(--text-tertiary)",
               }}
             />
             <span style={{ color: "var(--text-tertiary)" }}>→</span>
@@ -209,10 +201,7 @@ export default function TripForm({ onSubmit, loading }: TripFormProps) {
           >
             <div className="flex items-center gap-3">
               <Users size={20} style={{ color: "var(--text-secondary)" }} />
-              <span
-                className="text-sm font-medium"
-                style={{ color: "var(--text-primary)" }}
-              >
+              <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
                 {travelersCount} {travelersCount === 1 ? "person" : "people"}
               </span>
             </div>
@@ -253,10 +242,7 @@ export default function TripForm({ onSubmit, loading }: TripFormProps) {
           >
             Budget Range
           </label>
-          <div
-            className="flex gap-2 p-1.5 rounded-xl"
-            style={{ background: "var(--bg)" }}
-          >
+          <div className="flex gap-2 p-1.5 rounded-xl" style={{ background: "var(--bg)" }}>
             {[
               { value: "low", label: "Budget" },
               { value: "mid", label: "Mid-range" },
@@ -268,18 +254,9 @@ export default function TripForm({ onSubmit, loading }: TripFormProps) {
                 onClick={() => setBudgetRange(option.value)}
                 className="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all"
                 style={{
-                  background:
-                    budgetRange === option.value
-                      ? "var(--surface)"
-                      : "transparent",
-                  color:
-                    budgetRange === option.value
-                      ? "var(--accent)"
-                      : "var(--text-secondary)",
-                  boxShadow:
-                    budgetRange === option.value
-                      ? "0 1px 3px rgba(0,0,0,0.1)"
-                      : "none",
+                  background: budgetRange === option.value ? "var(--surface)" : "transparent",
+                  color: budgetRange === option.value ? "var(--accent)" : "var(--text-secondary)",
+                  boxShadow: budgetRange === option.value ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
                 }}
               >
                 {option.label}
@@ -308,9 +285,7 @@ export default function TripForm({ onSubmit, loading }: TripFormProps) {
                 className="p-4 rounded-xl border-2 transition-all hover:scale-105"
                 style={{
                   borderColor: isSelected ? "var(--accent)" : "var(--border)",
-                  background: isSelected
-                    ? "var(--accent-light)"
-                    : "var(--surface)",
+                  background: isSelected ? "var(--accent-light)" : "var(--surface)",
                 }}
               >
                 <div
@@ -333,8 +308,7 @@ export default function TripForm({ onSubmit, loading }: TripFormProps) {
         disabled={!canSubmit}
         className="w-full py-3.5 rounded-xl font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg flex items-center justify-center gap-2"
         style={{
-          background:
-            "linear-gradient(135deg, var(--accent), var(--accent-hover))",
+          background: "linear-gradient(135deg, var(--accent), var(--accent-hover))",
         }}
       >
         {loading ? (
