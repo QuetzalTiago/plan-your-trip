@@ -315,7 +315,7 @@ jobs:
 
   deploy-frontend:
     needs: [terraform-apply, changes]
-    if: always() && needs.terraform-apply.result == 'success' && (needs.changes.outputs.terraform == 'true' || needs.changes.outputs.backend == 'true' || github.event.inputs.apply == 'true')
+    if: always() && needs.terraform-apply.result != 'failure' && (needs.changes.outputs.terraform == 'true' || needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true' || github.event.inputs.apply == 'true')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

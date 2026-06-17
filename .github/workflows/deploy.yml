@@ -37,6 +37,8 @@ jobs:
           filters: |
             terraform:
               - 'terraform/**'
+              - '.github/workflows/infrastructure.yml'
+              - '.github/workflows/deploy.yml'
             backend:
               - 'backend/**'
             frontend:
@@ -45,6 +47,6 @@ jobs:
   infrastructure:
     name: Infrastructure & Backend
     needs: detect-changes
-    if: needs.detect-changes.outputs.terraform == 'true' || needs.detect-changes.outputs.backend == 'true'
+    if: needs.detect-changes.outputs.terraform == 'true' || needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.frontend == 'true'
     uses: ./.github/workflows/infrastructure.yml
     secrets: inherit
