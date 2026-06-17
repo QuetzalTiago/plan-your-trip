@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import threading
 import time
 import uuid
 from contextlib import contextmanager
@@ -20,39 +19,29 @@ from ..types import TripItem, MessageItem, ItineraryItem
 
 logger = logging.getLogger(__name__)
 
-# Connection pool (Lambda container reuse) with thread-safe initialization
-_pool: SimpleConnectionPool | None = None
-_pool_lock = threading.Lock()
+try:
+    _pool = SimpleConnectionPool(
+        minconn=1,
+        maxconn=10,
+        host=settings.postgres_host,
+        port=settings.postgres_port,
+        database=settings.postgres_db,
+        user=settings.postgres_user,
+        password=settings.postgres_password,
+        sslmode="require",  # RDS requires SSL
+        connect_timeout=10,
+        options="-c statement_timeout=30000",  # 30s query timeout
+    )
+    logger.info(
+        f"Connection pool created for {settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"
+    )
+except OperationalError as e:
+    logger.error(f"Failed to create connection pool: {e}")
+    raise DatabaseError(f"Database connection failed: {e}")
 
 
 def _get_pool() -> SimpleConnectionPool:
-    """Initialize connection pool with thread-safe lazy loading."""
-    global _pool
-
-    # Double-checked locking pattern for thread safety
-    if _pool is None:
-        with _pool_lock:
-            # Check again inside lock to avoid race condition
-            if _pool is None:
-                try:
-                    _pool = SimpleConnectionPool(
-                        minconn=1,
-                        maxconn=10,
-                        host=settings.postgres_host,
-                        port=settings.postgres_port,
-                        database=settings.postgres_db,
-                        user=settings.postgres_user,
-                        password=settings.postgres_password,
-                        sslmode="require",  # RDS requires SSL
-                        connect_timeout=10,
-                        options="-c statement_timeout=30000",  # 30s query timeout
-                    )
-                    logger.info(
-                        f"Connection pool created for {settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"
-                    )
-                except OperationalError as e:
-                    logger.error(f"Failed to create connection pool: {e}")
-                    raise DatabaseError(f"Database connection failed: {e}")
+    """Get the connection pool."""
     return _pool
 
 
