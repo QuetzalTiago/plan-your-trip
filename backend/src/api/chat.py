@@ -43,14 +43,13 @@ async def chat(
         raise HTTPException(status_code=404, detail="Trip not found")
 
     async def event_generator():
-        """Generate SSE stream from agent loop with keep-alive heartbeats."""
+        """Generate SSE stream from agent loop."""
         try:
             chunk_count = 0
             last_event_time = time.time()
 
             async for chunk in run_agent_loop(trip, body.message, user_id):
                 chunk_count += 1
-                last_event_time = time.time()
 
                 # Check if chunk is structured JSON (debug events, widgets, etc.)
                 if chunk.strip().startswith("{"):
