@@ -79,13 +79,35 @@ jobs:
       - name: Wait for deployment
         run: sleep 30
 
+      - name: Update Backend Config
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          sed -i "s/voyager-terraform-state-[0-9]\+/voyager-terraform-state-${ACCOUNT_ID}/" terraform/backend.hcl || \
+          sed -i "s/voyager-terraform-state\"/voyager-terraform-state-${ACCOUNT_ID}\"/" terraform/backend.hcl
+
       - name: Get URLs from Terraform
         id: urls
         run: |
           cd terraform
-          terraform init -backend-config=backend.hcl
-          echo "api_url=$(terraform output -raw api_url)" >> $GITHUB_OUTPUT
-          echo "cloudfront_url=$(terraform output -raw cloudfront_url)" >> $GITHUB_OUTPUT
+          
+          # Initialize terraform
+          if ! terraform init -backend-config=backend.hcl; then
+            echo "❌ Terraform init failed"
+            exit 1
+          fi
+          
+          # Get outputs
+          API_URL=$(terraform output -raw api_url 2>/dev/null)
+          CF_URL=$(terraform output -raw cloudfront_url 2>/dev/null)
+          
+          # Validate outputs exist
+          if [ -z "$API_URL" ]; then
+            echo "❌ Failed to get API URL from Terraform"
+            exit 1
+          fi
+          
+          echo "api_url=$API_URL" >> $GITHUB_OUTPUT
+          echo "cloudfront_url=$CF_URL" >> $GITHUB_OUTPUT
 
       - name: Test API health
         run: |

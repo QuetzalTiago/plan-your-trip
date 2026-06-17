@@ -34,17 +34,46 @@ jobs:
         with:
           terraform_version: 1.5.0
 
+      - name: Update Backend Config
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          sed -i "s/voyager-terraform-state-[0-9]\+/voyager-terraform-state-${ACCOUNT_ID}/" terraform/backend.hcl || \
+          sed -i "s/voyager-terraform-state\"/voyager-terraform-state-${ACCOUNT_ID}\"/" terraform/backend.hcl
+
       - name: Get Terraform outputs
         id: terraform
         run: |
           cd terraform
-          terraform init -backend-config=backend.hcl
-          echo "api_url=$(terraform output -raw api_url)" >> $GITHUB_OUTPUT
-          echo "bucket=$(terraform output -raw frontend_bucket_name)" >> $GITHUB_OUTPUT
-          echo "distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
-          echo "cloudfront_url=$(terraform output -raw cloudfront_url)" >> $GITHUB_OUTPUT
-          echo "user_pool_id=$(terraform output -raw user_pool_id)" >> $GITHUB_OUTPUT
-          echo "user_pool_client_id=$(terraform output -raw user_pool_client_id)" >> $GITHUB_OUTPUT
+          
+          # Initialize terraform
+          if ! terraform init -backend-config=backend.hcl; then
+            echo "❌ Terraform init failed"
+            exit 1
+          fi
+          
+          # Get outputs - fail if any output is missing
+          API_URL=$(terraform output -raw api_url 2>/dev/null)
+          BUCKET=$(terraform output -raw frontend_bucket_name 2>/dev/null)
+          DIST_ID=$(terraform output -raw cloudfront_distribution_id 2>/dev/null)
+          CF_URL=$(terraform output -raw cloudfront_url 2>/dev/null)
+          POOL_ID=$(terraform output -raw user_pool_id 2>/dev/null)
+          CLIENT_ID=$(terraform output -raw user_pool_client_id 2>/dev/null)
+          
+          # Validate outputs exist
+          if [ -z "$API_URL" ] || [ -z "$BUCKET" ] || [ -z "$DIST_ID" ]; then
+            echo "❌ Failed to get required Terraform outputs"
+            echo "API_URL: $API_URL"
+            echo "BUCKET: $BUCKET"
+            echo "DIST_ID: $DIST_ID"
+            exit 1
+          fi
+          
+          echo "api_url=$API_URL" >> $GITHUB_OUTPUT
+          echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
+          echo "distribution_id=$DIST_ID" >> $GITHUB_OUTPUT
+          echo "cloudfront_url=$CF_URL" >> $GITHUB_OUTPUT
+          echo "user_pool_id=$POOL_ID" >> $GITHUB_OUTPUT
+          echo "user_pool_client_id=$CLIENT_ID" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
