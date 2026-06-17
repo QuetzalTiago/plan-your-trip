@@ -250,7 +250,7 @@ async def run_agent_loop(
         except DatabaseError as e:
             logger.warning(f"Failed to save tool call messages: {e}")
 
-        # Execute all tools in parallel with keep-alive heartbeats
+        # Execute all tools in parallel
         async def execute_with_timing(tc):
             start = time.time()
             result = await execute_tool_async(tc["name"], tc["args"])
@@ -264,32 +264,8 @@ async def run_agent_loop(
         # Create tasks for all tool executions
         tasks = [asyncio.create_task(execute_with_timing(tc)) for tc in tool_calls]
 
-        # Wait for tasks with periodic heartbeats
-        results = []
-        pending = set(tasks)
-        last_heartbeat = time.time()
-
-        while pending:
-            # Wait up to 15 seconds for any task to complete
-            done, pending = await asyncio.wait(
-                pending, timeout=15.0, return_when=asyncio.FIRST_COMPLETED
-            )
-
-            # Collect completed results
-            for task in done:
-                try:
-                    results.append(task.result())
-                except Exception as e:
-                    results.append(e)
-
-            # Send keep-alive heartbeat if no tasks completed and we're still waiting
-            if not done and pending:
-                current_time = time.time()
-                if current_time - last_heartbeat >= 15:
-                    # Send SSE comment as keep-alive (clients ignore comments)
-                    yield ": keepalive\n\n"
-                    last_heartbeat = current_time
-                    logger.debug("Sent keep-alive heartbeat")
+        # Wait for all tasks to complete
+        results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Process results and build function response parts
         function_response_parts: list[types.Part] = []
